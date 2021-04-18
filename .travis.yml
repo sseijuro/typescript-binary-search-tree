@@ -1,5 +1,8 @@
 language: nodejs
 
+node_js:
+  - 14.16.1
+
 before_script:
   - npm run build:node
   - npm run build:browser
