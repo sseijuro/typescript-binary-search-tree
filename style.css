@@ -1,0 +1,57 @@
+
+#app section {
+    display: flex;
+}
+
+#app div {
+    border-right: 1px solid #cecece;
+    border-left: 1px solid #cecece;
+    min-width: 100px;
+    display: flex;
+    flex-direction: column;
+}
+
+#app p {
+    display: flex;
+    background: #cecece55;
+    border-top: 1px solid #cecece;
+    border-bottom: 1px solid #cecece;
+    min-width: 100%;
+    min-height: 100px;
+    line-height: 100px;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+#app .span-value {
+    font-size: 45pt;
+    width: 100%;
+    text-align: right;
+    height: 100%;
+}
+
+#app .b-parent {
+    float: right;
+    bottom: 0;
+    position: relative;
+    right: 4px;
+    font-size: 14px;
+    height: 28px;
+}
+
+form {
+    position: absolute;
+    right: 25px;
+    top: 25px;
+    background: #fff;
+}
+
+.form-group, button {
+    margin-top: 6px;
+}
+
+label {
+    margin-bottom: 6px;
+}

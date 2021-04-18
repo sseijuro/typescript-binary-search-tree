@@ -1,0 +1,9 @@
+language: nodejs
+
+before_script:
+  - npm install
+  - npm run build:node
+  - npm run build:browser
+
+script:
+  - npm run test
