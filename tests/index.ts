@@ -1,12 +1,12 @@
 import { expect } from "chai";
-import BinarySearchTree from "../src/binary-search-tree";
-import BinarySearchTreePrinter from "../src/binary-search-tree-printer";
+import BinarySearchTree from "../src/core/binary-search-tree";
+import BinarySearchTreePrinter from "../src/core/binary-search-tree-printer";
 import {
     BinarySearchTreePrinterAdapterFactory,
     BinarySearchTreePrinterConsoleAdapter,
-} from "../src/binary-search-tree-printer-adapter-factory";
-import { AdapterType } from "../src/const";
-import TreeNode from "../src/tree-node";
+} from "../src/core/binary-search-tree-printer-adapter-factory";
+import { AdapterType } from "../src/core/const";
+import TreeNode from "../src/core/tree-node";
 
 describe("TreeNode<T> Test Cases", () => {
     it("should create a tree node with value and empty children", () => {
