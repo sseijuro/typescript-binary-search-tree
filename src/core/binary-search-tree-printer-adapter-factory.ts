@@ -1,4 +1,19 @@
-import { AdapterType, MAX_VISUAL_DEPTH, METHOD_ALLOWED_IN_BROWSER, NOT_IMPLEMENTED_METHOD } from "./const";
+import {
+    AdapterType,
+    FONT_SIZE, LINE_WIDTH,
+    MAX_CANVAS_HEIGHT,
+    MAX_CANVAS_WIDTH,
+    MAX_WIDTH,
+    METHOD_ALLOWED_IN_BROWSER,
+    NOT_IMPLEMENTED_METHOD,
+    PathType,
+    X_COEFF,
+    X_START,
+    X_STEP,
+    Y_COEFF,
+    Y_START,
+    Y_STEP,
+} from "./const";
 
 export interface IBinarySearchTreePrinterAdapterFactory<T> {
     createConsoleAdapter(): BinarySearchTreePrinterConsoleAdapter<T>;
@@ -60,7 +75,7 @@ export class BinarySearchTreePrinterAdapter<T> implements IBinarySearchTreePrint
         throw new Error(NOT_IMPLEMENTED_METHOD);
     }
 
-    public removeContainer(): void {
+    public clear(): void {
         throw new Error(NOT_IMPLEMENTED_METHOD);
     }
 }
@@ -70,15 +85,13 @@ export class BinarySearchTreePrinterConsoleAdapter<T> extends BinarySearchTreePr
         super(AdapterType.ConsoleAdapter);
     }
 
-    print(value: T | null = null, depth: number = 0, parent: T | null = null): void {
-        console.log(`Value=${value}, depth=${depth}, parent=${parent}`);
+    print(value: T | null = null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+        console.log(`Value=${value}, x=${x}, y=${y}, depth=${depth}`);
     }
 }
 
 export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePrinterAdapter<T> {
-    private _container: HTMLElement | null = null;
-    private _containerInstance: boolean = false;
-    private _depthRow: HTMLElement[] = [];
+    private readonly _ctx: CanvasRenderingContext2D | null = this.setupContext();
 
     constructor() {
         super(AdapterType.VisualAdapter);
@@ -87,45 +100,51 @@ export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePri
         }
     }
 
-    removeContainer(): void {
-        if (this._container) {
-            this._container = null;
-            this._depthRow = [];
-            this._containerInstance = false;
-            const visual = document.getElementById("app");
-            if (visual) {
-                visual.innerHTML = "";
-            }
+    setupContext(): CanvasRenderingContext2D | null {
+        let canvas = document.getElementsByTagName("canvas")[0];
+        if (!canvas) {
+            canvas = document.createElement("canvas");
+            canvas.width = MAX_CANVAS_WIDTH;
+            canvas.height = MAX_CANVAS_HEIGHT;
+            document.body.append(canvas);
+        }
+        return canvas.getContext("2d");
+    }
+
+    clear(): void {
+        if (this._ctx) {
+            this._ctx.clearRect(0, 0, MAX_CANVAS_WIDTH, MAX_CANVAS_HEIGHT);
         }
     }
 
-    print(value: T | null = null, depth: number = 0, parent: T | null = null): void {
-        if (!this._containerInstance) {
-            this._containerInstance = true;
-            this._container = document.createElement("section");
-            document.getElementById("app")?.append(this._container);
-            for (let i = 0; i <= MAX_VISUAL_DEPTH; i++) {
-                this._depthRow.push(document.createElement("div"));
-                this._depthRow[i].setAttribute("data-depth", i.toString());
-                this._container.append(this._depthRow[i]);
-            }
+    print(value: T | null = null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+        if (this._ctx) {
+            this._ctx.font = `${FONT_SIZE}px serif`;
+            this._ctx.fillText(`${value}`, x, y, MAX_WIDTH);
+
+            this.drawPath(x, y, depth, PathType.Left);
+            this.drawPath(x, y, depth, PathType.Right);
+
         }
-        const p: HTMLParagraphElement = document.createElement("p");
-        p.setAttribute("parent", `${parent}`);
-        p.setAttribute("value", `${value}`);
-        const spanValue: HTMLSpanElement = document.createElement("span");
-        spanValue.classList.add("span-value");
-
-        if (value) {
-            spanValue.innerText = p.getAttribute("value") ?? "x";
-        }
-
-        const bParent: HTMLSpanElement = document.createElement("b");
-        bParent.classList.add("b-parent");
-        bParent.innerText = p.getAttribute("parent") ?? "null";
-        p.append(spanValue);
-
-        p.append(bParent);
-        this._depthRow[depth].append(p);
     }
+
+    drawPath(x: number, y: number, depth: number, type: PathType): void {
+        if (this._ctx) {
+            this._ctx.beginPath();
+            this._ctx.moveTo(x, y);
+            this._ctx.lineWidth = LINE_WIDTH;
+            switch (type) {
+                case PathType.Left:
+                    this._ctx.lineTo(x - X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF);
+                    break;
+                case PathType.Right:
+                    this._ctx.lineTo(x + X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF);
+                    break;
+                default:
+                    break;
+            }
+            this._ctx.stroke();
+        }
+    }
+
 }

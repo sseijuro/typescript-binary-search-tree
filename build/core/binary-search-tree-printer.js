@@ -26,49 +26,31 @@ var BinarySearchTreePrinter = /** @class */ (function () {
             }
         }
     };
-    BinarySearchTreePrinter.prototype.printPreOrder = function (node, depth, parent, showNullNode) {
-        if (depth === void 0) { depth = 0; }
-        if (parent === void 0) { parent = null; }
-        if (showNullNode === void 0) { showNullNode = true; }
+    BinarySearchTreePrinter.prototype.printPreOrder = function (node, x, y) {
+        if (x === void 0) { x = const_1.X_START; }
+        if (y === void 0) { y = const_1.Y_START; }
         if (node) {
-            this._adapter.print(node._value, depth, parent);
-            this.printPreOrder(node._left);
-            this.printPreOrder(node._right);
-        }
-        else {
-            if (showNullNode) {
-                this._adapter.print(null, depth, parent);
-            }
+            this._adapter.print(node._value, x, y);
+            this.printPreOrder(node._left, x - const_1.STEP, y - const_1.STEP);
+            this.printPreOrder(node._right, x + const_1.STEP, y - const_1.STEP);
         }
     };
-    BinarySearchTreePrinter.prototype.printInOrder = function (node, depth, parent, showNullNode) {
-        if (depth === void 0) { depth = 0; }
-        if (parent === void 0) { parent = null; }
-        if (showNullNode === void 0) { showNullNode = true; }
+    BinarySearchTreePrinter.prototype.printInOrder = function (node, x, y) {
+        if (x === void 0) { x = const_1.X_START; }
+        if (y === void 0) { y = const_1.Y_START; }
         if (node) {
-            this.printInOrder(node._left, depth + 1, node._value);
-            this._adapter.print(node._value, depth, parent);
-            this.printInOrder(node._right, depth + 1, node._value);
-        }
-        else {
-            if (showNullNode) {
-                this._adapter.print(null, depth, parent);
-            }
+            this.printInOrder(node._left, x - const_1.STEP, y - const_1.STEP);
+            this._adapter.print(node._value, x, y);
+            this.printInOrder(node._right, x + const_1.STEP, y - const_1.STEP);
         }
     };
-    BinarySearchTreePrinter.prototype.printPostOrder = function (node, depth, parent, showNullNode) {
-        if (depth === void 0) { depth = 0; }
-        if (parent === void 0) { parent = null; }
-        if (showNullNode === void 0) { showNullNode = true; }
+    BinarySearchTreePrinter.prototype.printPostOrder = function (node, x, y) {
+        if (x === void 0) { x = const_1.X_START; }
+        if (y === void 0) { y = const_1.Y_START; }
         if (node) {
-            this.printPostOrder(node._left);
-            this.printPostOrder(node._right);
-            this._adapter.print(node._value, depth, parent);
-        }
-        else {
-            if (showNullNode) {
-                this._adapter.print(null, depth, parent);
-            }
+            this.printPostOrder(node._left, x - const_1.STEP, y - const_1.STEP);
+            this.printPostOrder(node._right, x + const_1.STEP, y - const_1.STEP);
+            this._adapter.print(node._value, x, y);
         }
     };
     return BinarySearchTreePrinter;

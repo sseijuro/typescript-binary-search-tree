@@ -69,11 +69,11 @@ var BinarySearchTreePrinterConsoleAdapter = /** @class */ (function (_super) {
     function BinarySearchTreePrinterConsoleAdapter() {
         return _super.call(this, const_1.AdapterType.ConsoleAdapter) || this;
     }
-    BinarySearchTreePrinterConsoleAdapter.prototype.print = function (value, depth, parent) {
+    BinarySearchTreePrinterConsoleAdapter.prototype.print = function (value, x, y) {
         if (value === void 0) { value = null; }
-        if (depth === void 0) { depth = 0; }
-        if (parent === void 0) { parent = null; }
-        console.log("Value=" + value + ", depth=" + depth + ", parent=" + parent);
+        if (x === void 0) { x = const_1.X_START; }
+        if (y === void 0) { y = const_1.Y_START; }
+        console.log("Value=" + value + ", x=" + x + ", y=" + y);
     };
     return BinarySearchTreePrinterConsoleAdapter;
 }(BinarySearchTreePrinterAdapter));
@@ -82,54 +82,37 @@ var BinarySearchTreePrinterVisualAdapter = /** @class */ (function (_super) {
     __extends(BinarySearchTreePrinterVisualAdapter, _super);
     function BinarySearchTreePrinterVisualAdapter() {
         var _this = _super.call(this, const_1.AdapterType.VisualAdapter) || this;
-        _this._container = null;
-        _this._containerInstance = false;
-        _this._depthRow = [];
+        _this._ctx = _this.setupContext();
+        _this._maxWidth = 0;
+        _this._maxHeight = 0;
         if (!window) {
             throw new Error(const_1.METHOD_ALLOWED_IN_BROWSER);
         }
         return _this;
     }
+    BinarySearchTreePrinterVisualAdapter.prototype.setupContext = function () {
+        var canvas = document.getElementsByTagName("canvas")[0];
+        if (!canvas) {
+            canvas = document.createElement("canvas");
+            document.body.append(canvas);
+        }
+        this._maxWidth = canvas.width;
+        this._maxHeight = canvas.height;
+        return canvas.getContext("2d");
+    };
     BinarySearchTreePrinterVisualAdapter.prototype.removeContainer = function () {
-        if (this._container) {
-            this._container = null;
-            this._depthRow = [];
-            this._containerInstance = false;
-            var visual = document.getElementById("app");
-            if (visual) {
-                visual.innerHTML = "";
-            }
+        if (this._ctx) {
+            this._ctx.clearRect(0, 0, this._maxWidth, this._maxHeight);
         }
     };
-    BinarySearchTreePrinterVisualAdapter.prototype.print = function (value, depth, parent) {
-        var _a, _b, _c;
+    BinarySearchTreePrinterVisualAdapter.prototype.print = function (value, x, y) {
         if (value === void 0) { value = null; }
-        if (depth === void 0) { depth = 0; }
-        if (parent === void 0) { parent = null; }
-        if (!this._containerInstance) {
-            this._containerInstance = true;
-            this._container = document.createElement("section");
-            (_a = document.getElementById("app")) === null || _a === void 0 ? void 0 : _a.append(this._container);
-            for (var i = 0; i <= const_1.MAX_VISUAL_DEPTH; i++) {
-                this._depthRow.push(document.createElement("div"));
-                this._depthRow[i].setAttribute("data-depth", i.toString());
-                this._container.append(this._depthRow[i]);
-            }
+        if (x === void 0) { x = const_1.X_START; }
+        if (y === void 0) { y = const_1.Y_START; }
+        if (this._ctx) {
+            this._ctx.font = "10px serif";
+            this._ctx.fillText("" + value, x, y, const_1.MAX_WIDTH);
         }
-        var p = document.createElement("p");
-        p.setAttribute("parent", "" + parent);
-        p.setAttribute("value", "" + value);
-        var spanValue = document.createElement("span");
-        spanValue.classList.add("span-value");
-        if (value) {
-            spanValue.innerText = (_b = p.getAttribute("value")) !== null && _b !== void 0 ? _b : "x";
-        }
-        var bParent = document.createElement("b");
-        bParent.classList.add("b-parent");
-        bParent.innerText = (_c = p.getAttribute("parent")) !== null && _c !== void 0 ? _c : "null";
-        p.append(spanValue);
-        p.append(bParent);
-        this._depthRow[depth].append(p);
     };
     return BinarySearchTreePrinterVisualAdapter;
 }(BinarySearchTreePrinterAdapter));

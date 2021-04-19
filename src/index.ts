@@ -16,12 +16,14 @@ for (const value of [14, 24, 9, 6, 21, 16, 12, 4, 8, 26]) {
     window.tree.add(value);
 }
 
-window.printer = new BinarySearchTreePrinter<number>(window.tree, new BinarySearchTreePrinterAdapterFactory<number>().createVisualAdapter());
+// adapter = new BinarySearchTreePrinterAdapterFactory<number).createConsoleAdapter();
+const adapter = new BinarySearchTreePrinterAdapterFactory<number>().createVisualAdapter();
+window.printer = new BinarySearchTreePrinter<number>(window.tree, adapter);
 window.printer.print();
 
 document.querySelector("button.add-input")?.addEventListener("click", (e) => {
     e.preventDefault();
-    window.printer.getAdapter().removeContainer();
+    window.printer.getAdapter().clear();
     const value = (document.getElementById("addInput") as HTMLInputElement).value;
     window.tree.add(Number(value));
     window.printer.print();
@@ -29,7 +31,7 @@ document.querySelector("button.add-input")?.addEventListener("click", (e) => {
 
 document.querySelector("button.delete-input")?.addEventListener("click", (e) => {
     e.preventDefault();
-    window.printer.getAdapter().removeContainer();
+    window.printer.getAdapter().clear();
     const value = (document.getElementById("deleteInput") as HTMLInputElement).value;
     window.tree.delete(Number(value));
     window.printer.print();
