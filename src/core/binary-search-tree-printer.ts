@@ -4,7 +4,7 @@ import {
     BinarySearchTreePrinterConsoleAdapter,
     BinarySearchTreePrinterVisualAdapter,
 } from "./binary-search-tree-printer-adapter-factory";
-import { Loop, X_COEFF, X_START, X_STEP, Y_COEFF, Y_START, Y_STEP } from "./const";
+import { Loop, STEP, X_START, Y_START } from "./const";
 import TreeNode from "./tree-node";
 
 export default class BinarySearchTreePrinter<T> {
@@ -38,27 +38,27 @@ export default class BinarySearchTreePrinter<T> {
         }
     }
 
-    private printPreOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+    private printPreOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
-            this._adapter.print(node._value, x, y, depth);
-            this.printPreOrder(node._left, x - X_STEP * depth * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
-            this.printPreOrder(node._right, x + X_STEP * depth * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
+            this._adapter.print(node._value, x, y, prevX, prevY, depth);
+            this.printPreOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
+            this.printPreOrder(node._right, x + STEP * depth, y + STEP * depth, x, y, depth + 1);
         }
     }
 
-    private printInOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+    private printInOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
-            this.printInOrder(node._left, x - X_STEP * depth * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
-            this._adapter.print(node._value, x, y, depth);
-            this.printInOrder(node._right, x + X_STEP * depth * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
+            this.printInOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
+            this._adapter.print(node._value, x, y, prevX, prevY, depth);
+            this.printInOrder(node._right, x + STEP * depth, y + STEP * depth, x, y, depth + 1);
         }
     }
 
-    private printPostOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+    private printPostOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
-            this.printPostOrder(node._left, x - X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
-            this.printPostOrder(node._right, x + X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF, depth + 1);
-            this._adapter.print(node._value, x, y, depth);
+            this.printPostOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
+            this.printPostOrder(node._right, x + STEP * depth, y + STEP * depth, x, y, depth + 1);
+            this._adapter.print(node._value, x, y, prevX, prevY, depth);
         }
     }
 }

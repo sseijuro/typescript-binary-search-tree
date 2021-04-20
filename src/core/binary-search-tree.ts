@@ -48,6 +48,9 @@ export default class BinarySearchTree<T> implements IBinarySearchTree<T> {
     }
 
     private addNode(node: TreeNode<T>, value: T): void {
+        if (this.find(value)) {
+            return;
+        }
         if (value < node._value) {
             if (!node._left) {
                 node._left = new TreeNode<T>(value);

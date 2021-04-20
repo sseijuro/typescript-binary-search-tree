@@ -3,16 +3,11 @@ import {
     FONT_SIZE, LINE_WIDTH,
     MAX_CANVAS_HEIGHT,
     MAX_CANVAS_WIDTH,
-    MAX_WIDTH,
     METHOD_ALLOWED_IN_BROWSER,
     NOT_IMPLEMENTED_METHOD,
-    PathType,
-    X_COEFF,
+    RECT_COLOR, RECT_SIZE,
     X_START,
-    X_STEP,
-    Y_COEFF,
     Y_START,
-    Y_STEP,
 } from "./const";
 
 export interface IBinarySearchTreePrinterAdapterFactory<T> {
@@ -85,22 +80,23 @@ export class BinarySearchTreePrinterConsoleAdapter<T> extends BinarySearchTreePr
         super(AdapterType.ConsoleAdapter);
     }
 
-    print(value: T | null = null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
-        console.log(`Value=${value}, x=${x}, y=${y}, depth=${depth}`);
+    print(value: T | null = null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
+        console.log(`Value=${value}, x=${x}, y=${y}, prevX=${prevX}, prevY=${prevY}, depth=${depth}`);
     }
 }
 
 export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePrinterAdapter<T> {
-    private readonly _ctx: CanvasRenderingContext2D | null = this.setupContext();
+    private _ctx: CanvasRenderingContext2D | null = null;
 
     constructor() {
         super(AdapterType.VisualAdapter);
         if (!window) {
             throw new Error(METHOD_ALLOWED_IN_BROWSER);
         }
+        this.setupContext();
     }
 
-    setupContext(): CanvasRenderingContext2D | null {
+    setupContext(): void {
         let canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas) {
             canvas = document.createElement("canvas");
@@ -108,7 +104,7 @@ export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePri
             canvas.height = MAX_CANVAS_HEIGHT;
             document.body.append(canvas);
         }
-        return canvas.getContext("2d");
+        this._ctx = canvas.getContext("2d");
     }
 
     clear(): void {
@@ -117,32 +113,30 @@ export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePri
         }
     }
 
-    print(value: T | null = null, x: number = X_START, y: number = Y_START, depth: number = 1): void {
+    print(value: T | null = null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (this._ctx) {
-            this._ctx.font = `${FONT_SIZE}px serif`;
-            this._ctx.fillText(`${value}`, x, y, MAX_WIDTH);
-
-            this.drawPath(x, y, depth, PathType.Left);
-            this.drawPath(x, y, depth, PathType.Right);
+            if (value) {
+                const digits = `${value}`.length;
+                const diff = digits > 2 ? (digits - 2) * 1.5 : 0;
+                const fontSize = FONT_SIZE - diff;
+                this._ctx.font = `${fontSize}px serif`;
+                this._ctx.fillStyle = `${RECT_COLOR}`;
+                this._ctx.fillRect(x, y, RECT_SIZE, RECT_SIZE);
+                this._ctx.strokeText(`${value}`, !diff ? x + FONT_SIZE * .5 : x, y + FONT_SIZE * 1.25);
+                if (prevX && prevY && depth > 2) {
+                    this.drawPath(prevX, prevY + RECT_SIZE, x, y);
+                }
+            }
 
         }
     }
 
-    drawPath(x: number, y: number, depth: number, type: PathType): void {
+    drawPath(x1: number, y1: number, x2: number, y2: number): void {
         if (this._ctx) {
             this._ctx.beginPath();
-            this._ctx.moveTo(x, y);
+            this._ctx.moveTo(x1, y1);
             this._ctx.lineWidth = LINE_WIDTH;
-            switch (type) {
-                case PathType.Left:
-                    this._ctx.lineTo(x - X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF);
-                    break;
-                case PathType.Right:
-                    this._ctx.lineTo(x + X_STEP * X_COEFF, y + Y_STEP * depth * Y_COEFF);
-                    break;
-                default:
-                    break;
-            }
+            this._ctx.lineTo(x2, y2);
             this._ctx.stroke();
         }
     }
