@@ -16,6 +16,7 @@ export default class BinarySearchTreePrinter<T> {
         this._tree = tree;
         this._adapter = adapter;
         this._adapter.setTreeDepth(this._tree.maxDepth());
+        this.print = this.print.bind(this);
     }
 
     public getAdapter(): BinarySearchTreePrinterAdapter<T> | BinarySearchTreePrinterConsoleAdapter<T> | BinarySearchTreePrinterVisualAdapter<T> {
@@ -38,7 +39,10 @@ export default class BinarySearchTreePrinter<T> {
         }
     }
 
-    private printPreOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
+    private printPreOrder(node: TreeNode<T> | null,
+                          x: number = X_START,
+                          y: number = Y_START,
+                          prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
             this._adapter.print(node._value, x, y, prevX, prevY, depth);
             this.printPreOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
@@ -46,7 +50,10 @@ export default class BinarySearchTreePrinter<T> {
         }
     }
 
-    private printInOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
+    private printInOrder(node: TreeNode<T> | null,
+                         x: number = this._adapter.getZoom()?.X_START_SCALED ?? X_START,
+                         y: number = this._adapter.getZoom()?.Y_START_SCALED ?? Y_START,
+                         prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
             this.printInOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
             this._adapter.print(node._value, x, y, prevX, prevY, depth);

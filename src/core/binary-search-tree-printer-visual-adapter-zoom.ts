@@ -1,8 +1,17 @@
-import { CANVAS_NOT_SPECIFIED } from "./const";
+import {
+    CANVAS_NOT_SPECIFIED,
+    MAX_CANVAS_HEIGHT,
+    MAX_CANVAS_WIDTH, SCALE_STEP,
+    X_START,
+    X_START_STEP,
+    Y_START,
+    Y_START_STEP,
+} from "./const";
 
 export class BinarySearchTreePrinterVisualAdapterZoom {
     constructor(
-        public canvas: HTMLCanvasElement | null = null,
+        public menuParent: Element = document.body,
+        public canvas: HTMLCanvasElement | null = document.getElementsByTagName("canvas")[0],
         public draw: Function = () => {
         },
         public MAX_ZOOM: number = 5,
@@ -12,30 +21,28 @@ export class BinarySearchTreePrinterVisualAdapterZoom {
         public worldY: number = 0,
         public mouseScreenX: number = 0,
         public mouseScreenY: number = 0,
-        public mouseX: number = 0,
-        public mouseY: number = 0,
-        public mouseRealX: number = 0,
-        public mouseRealY: number = 0,
-        public mouseButton: number = 0,
-        public bounds: DOMRect | null = null,
+        public X_START_SCALED: number = X_START,
+        public Y_START_SCALED: number = Y_START,
     ) {
         if (!canvas) {
             throw new Error(CANVAS_NOT_SPECIFIED);
         }
 
-        canvas.addEventListener("wheel", (e) => this.onWheel(e));
-        canvas.addEventListener("mousemove", (e) => this.onMove(e));
-        canvas.addEventListener("mousedown", (e) => this.onMove(e));
-        canvas.addEventListener("mouseup", (e) => this.onMove(e));
-        canvas.addEventListener("mouseout", (e) => this.onMove(e));
+        this.initMenu();
 
         this.ify = this.ify.bind(this);
         this.Xify = this.Xify.bind(this);
         this.Yify = this.Yify.bind(this);
         this.xFromScreenToWorld = this.xFromScreenToWorld.bind(this);
         this.yFromScreenToWorld = this.yFromScreenToWorld.bind(this);
-        this.onMove = this.onMove.bind(this);
-        this.onWheel = this.onWheel.bind(this);
+    }
+
+    getXstartScaled(): number {
+        return this.X_START_SCALED;
+    }
+
+    getYstartScaled(): number {
+        return this.Y_START_SCALED;
     }
 
     ify(num: number): number {
@@ -58,55 +65,63 @@ export class BinarySearchTreePrinterVisualAdapterZoom {
         return Math.floor((num - this.mouseScreenY) * (1 / this.scale) + this.worldY);
     }
 
-    onMove(event: MouseEvent): void {
-        if (this.canvas) {
-            switch (event.type) {
-                case "mousedown":
-                    this.mouseButton = 1;
-                    break;
-                case "mouseup":
-                case "mouseout":
-                    this.mouseButton = 0;
-                    break;
-                default:
-                    break;
-            }
-            console.log(event.type);
-
-            this.bounds = this.canvas.getBoundingClientRect();
-            this.mouseX = event.clientX - this.bounds.left;
-            this.mouseY = event.clientY - this.bounds.top;
-
-            const lastRealX = this.mouseRealX;
-            const lastRealY = this.mouseRealY;
-
-            this.mouseRealX = this.Xify(this.mouseX);
-            this.mouseRealY = this.Yify(this.mouseY);
-
-            if (this.mouseButton) {
-                this.worldX -= this.mouseRealX - lastRealX;
-                this.worldY -= this.mouseRealY - lastRealY;
-                this.mouseRealX = this.xFromScreenToWorld(this.mouseX);
-                this.mouseRealY = this.yFromScreenToWorld(this.mouseY);
-            }
-            this.draw();
+    clear(): void {
+        const ctx = this.canvas?.getContext("2d");
+        if (ctx) {
+            ctx.clearRect(0, 0, MAX_CANVAS_WIDTH, MAX_CANVAS_HEIGHT);
         }
     }
 
-    onWheel(event: WheelEvent): void {
-        this.scale = event.deltaY > 0 ? Math.max(this.MIN_ZOOM, this.scale) : Math.min(this.MAX_ZOOM, this.scale);
-        this.worldX = this.mouseRealX;
-        this.worldY = this.mouseRealY;
-        this.mouseScreenX = this.mouseX;
-        this.mouseScreenY = this.mouseY;
-        this.mouseRealX = this.xFromScreenToWorld(this.mouseX);
-        this.mouseRealY = this.yFromScreenToWorld(this.mouseY);
+    onWay(way: string): void {
+        switch (way) {
+            case "left":
+                this.X_START_SCALED -= X_START_STEP;
+                break;
+            case "up":
+                this.Y_START_SCALED -= Y_START_STEP;
+                break;
+            case "right":
+                this.X_START_SCALED += X_START_STEP;
+                break;
+            case "down":
+                this.Y_START_SCALED += Y_START_STEP;
+                break;
+            case "zoom-in":
+                this.scale = Math.min(this.scale + SCALE_STEP, this.MAX_ZOOM);
+                break;
+            case "zoom-out":
+                this.scale = Math.max(this.scale - SCALE_STEP, this.MIN_ZOOM);
+                break;
+        }
+        this.clear();
         this.draw();
-        event.preventDefault();
     }
 
-    setDraw = (fun: Function) => {
+    setRender = (fun: Function) => {
         this.draw = fun;
     };
+
+    private initMenu(): void {
+        this.createMenu(["left", "up", "right", "down"]);
+        this.createMenu(["zoom-in", "zoom-out"]);
+    }
+
+    private createMenu(buttonArray: string[], parent: Element = this.menuParent): void {
+        const menu = document.createElement("div");
+        menu.classList.add("btn-group");
+        this.menuParent.append(menu);
+        for (const buttonName of buttonArray) {
+            const but = document.createElement("button");
+            but.innerText = buttonName;
+            but.classList.add("btn", "btn-secondary");
+            but.onclick = (e: MouseEvent) => {
+                this.onWay(buttonName);
+                e.preventDefault();
+            };
+            menu.append(but);
+        }
+        parent.append(document.createElement("br"));
+        parent.append(menu);
+    }
 
 }

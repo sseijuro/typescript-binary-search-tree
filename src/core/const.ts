@@ -13,10 +13,10 @@ export const FONT_SIZE: number = 16;
 export const RECT_COLOR: string = "#95a5a655";
 
 export const RECT_SIZE: number = FONT_SIZE * 2;
+export const SCALE_STEP: number = .1;
 export const X_START: number = MAX_CANVAS_WIDTH / 2;
 export const Y_START: number = 0;
 export const STEP: number = RECT_SIZE;
-export const MAX_WIDTH: number = 25;
-export const X_COEFF: number = 1;
-export const Y_COEFF: number = 1;
 export const LINE_WIDTH: number = .5;
+export const X_START_STEP: number = 50;
+export const Y_START_STEP: number = 50;
