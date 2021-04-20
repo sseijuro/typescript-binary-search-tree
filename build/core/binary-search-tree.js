@@ -3,22 +3,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var tree_node_1 = __importDefault(require("./tree-node"));
-var BinarySearchTree = /** @class */ (function () {
-    function BinarySearchTree() {
+const tree_node_1 = __importDefault(require("./tree-node"));
+class BinarySearchTree {
+    constructor() {
         this._root = null;
     }
-    BinarySearchTree.prototype.getRoot = function () {
+    getRoot() {
         return this._root;
-    };
-    BinarySearchTree.prototype.add = function (value) {
+    }
+    add(value) {
         !this._root ? this._root = new tree_node_1.default(value) : this.addNode(this._root, value);
-    };
-    BinarySearchTree.prototype.delete = function (value) {
+    }
+    delete(value) {
         this._root = this.deleteNode(this._root, value);
-    };
-    BinarySearchTree.prototype.find = function (value, node) {
-        if (node === void 0) { node = this._root; }
+    }
+    find(value, node = this._root) {
         if (!node) {
             return null;
         }
@@ -26,17 +25,16 @@ var BinarySearchTree = /** @class */ (function () {
             return this.find(value, value < node._value ? node._left : node._right);
         }
         return node;
-    };
-    BinarySearchTree.prototype.maxDepth = function (node) {
-        if (node === void 0) { node = this._root; }
+    }
+    maxDepth(node = this._root) {
         if (!node) {
             return 0;
         }
-        var left = this.maxDepth(node._left);
-        var right = this.maxDepth(node._right);
+        const left = this.maxDepth(node._left);
+        const right = this.maxDepth(node._right);
         return left > right ? left + 1 : right + 1;
-    };
-    BinarySearchTree.prototype.addNode = function (node, value) {
+    }
+    addNode(node, value) {
         if (value < node._value) {
             if (!node._left) {
                 node._left = new tree_node_1.default(value);
@@ -53,8 +51,8 @@ var BinarySearchTree = /** @class */ (function () {
                 this.addNode(node._right, value);
             }
         }
-    };
-    BinarySearchTree.prototype.deleteNode = function (node, value) {
+    }
+    deleteNode(node, value) {
         if (!node) {
             return null;
         }
@@ -78,14 +76,13 @@ var BinarySearchTree = /** @class */ (function () {
             node = node._left;
             return node;
         }
-        var minNode = this.findMin(node._right);
+        const minNode = this.findMin(node._right);
         node._value = minNode._value;
         node._right = this.deleteNode(node._right, minNode._value);
         return node;
-    };
-    BinarySearchTree.prototype.findMin = function (node) {
+    }
+    findMin(node) {
         return !node._left ? node : this.findMin(node._left);
-    };
-    return BinarySearchTree;
-}());
+    }
+}
 exports.default = BinarySearchTree;
