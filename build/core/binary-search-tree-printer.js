@@ -6,6 +6,7 @@ class BinarySearchTreePrinter {
         this._tree = tree;
         this._adapter = adapter;
         this._adapter.setTreeDepth(this._tree.maxDepth());
+        this.print = this.print.bind(this);
     }
     getAdapter() {
         return this._adapter;

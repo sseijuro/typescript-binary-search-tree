@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.BinarySearchTreePrinterVisualAdapterZoom = void 0;
 const const_1 = require("./const");
 class BinarySearchTreePrinterVisualAdapterZoom {
-    constructor(canvas = null, draw = () => {
+    constructor(canvas = document.getElementsByTagName("canvas")[0], draw = () => {
     }, MAX_ZOOM = 5, MIN_ZOOM = .2, scale = 1, worldX = 0, worldY = 0, mouseScreenX = 0, mouseScreenY = 0, mouseX = 0, mouseY = 0, mouseRealX = 0, mouseRealY = 0, mouseButton = 0, bounds = null) {
         this.canvas = canvas;
         this.draw = draw;
@@ -67,7 +67,6 @@ class BinarySearchTreePrinterVisualAdapterZoom {
                 default:
                     break;
             }
-            console.log(event.type);
             this.bounds = this.canvas.getBoundingClientRect();
             this.mouseX = event.clientX - this.bounds.left;
             this.mouseY = event.clientY - this.bounds.top;

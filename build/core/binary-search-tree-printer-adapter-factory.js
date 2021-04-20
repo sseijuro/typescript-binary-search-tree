@@ -21,8 +21,8 @@ class BinarySearchTreePrinterAdapterFactory {
     createConsoleAdapter() {
         return new BinarySearchTreePrinterConsoleAdapter();
     }
-    createVisualAdapter() {
-        return new BinarySearchTreePrinterVisualAdapter();
+    createVisualAdapter(_zoom = null) {
+        return new BinarySearchTreePrinterVisualAdapter(_zoom);
     }
 }
 exports.BinarySearchTreePrinterAdapterFactory = BinarySearchTreePrinterAdapterFactory;
@@ -55,8 +55,9 @@ class BinarySearchTreePrinterConsoleAdapter extends BinarySearchTreePrinterAdapt
 }
 exports.BinarySearchTreePrinterConsoleAdapter = BinarySearchTreePrinterConsoleAdapter;
 class BinarySearchTreePrinterVisualAdapter extends BinarySearchTreePrinterAdapter {
-    constructor() {
+    constructor(_zoom = null) {
         super(const_1.AdapterType.VisualAdapter);
+        this._zoom = _zoom;
         this._ctx = null;
         if (!window) {
             throw new Error(const_1.METHOD_ALLOWED_IN_BROWSER);

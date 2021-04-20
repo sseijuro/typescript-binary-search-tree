@@ -1,3 +1,4 @@
+import { BinarySearchTreePrinterVisualAdapterZoom } from "./binary-search-tree-printer-visual-adapter-zoom";
 import {
     AdapterType,
     FONT_SIZE, LINE_WIDTH,
@@ -46,8 +47,8 @@ export class BinarySearchTreePrinterAdapterFactory<T> implements IBinarySearchTr
         return new BinarySearchTreePrinterConsoleAdapter<T>();
     }
 
-    public createVisualAdapter(): BinarySearchTreePrinterVisualAdapter<T> {
-        return new BinarySearchTreePrinterVisualAdapter<T>();
+    public createVisualAdapter(_zoom: BinarySearchTreePrinterVisualAdapterZoom | null = null): BinarySearchTreePrinterVisualAdapter<T> {
+        return new BinarySearchTreePrinterVisualAdapter<T>(_zoom);
     }
 }
 
@@ -73,6 +74,10 @@ export class BinarySearchTreePrinterAdapter<T> implements IBinarySearchTreePrint
     public clear(): void {
         throw new Error(NOT_IMPLEMENTED_METHOD);
     }
+
+    public getZoom(): BinarySearchTreePrinterVisualAdapterZoom | null {
+        throw new Error(NOT_IMPLEMENTED_METHOD);
+    }
 }
 
 export class BinarySearchTreePrinterConsoleAdapter<T> extends BinarySearchTreePrinterAdapter<T> {
@@ -88,7 +93,7 @@ export class BinarySearchTreePrinterConsoleAdapter<T> extends BinarySearchTreePr
 export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePrinterAdapter<T> {
     private _ctx: CanvasRenderingContext2D | null = null;
 
-    constructor() {
+    constructor(private _zoom: BinarySearchTreePrinterVisualAdapterZoom | null = null) {
         super(AdapterType.VisualAdapter);
         if (!window) {
             throw new Error(METHOD_ALLOWED_IN_BROWSER);
@@ -96,14 +101,18 @@ export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePri
         this.setupContext();
     }
 
+    public getZoom(): BinarySearchTreePrinterVisualAdapterZoom | null {
+        return this._zoom;
+    }
+
     setupContext(): void {
         let canvas = document.getElementsByTagName("canvas")[0];
         if (!canvas) {
             canvas = document.createElement("canvas");
-            canvas.width = MAX_CANVAS_WIDTH;
-            canvas.height = MAX_CANVAS_HEIGHT;
             document.body.append(canvas);
         }
+        canvas.width = MAX_CANVAS_WIDTH;
+        canvas.height = MAX_CANVAS_HEIGHT;
         this._ctx = canvas.getContext("2d");
     }
 
@@ -113,21 +122,49 @@ export class BinarySearchTreePrinterVisualAdapter<T> extends BinarySearchTreePri
         }
     }
 
-    print(value: T | null = null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
-        if (this._ctx) {
-            if (value) {
-                const digits = `${value}`.length;
-                const diff = digits > 2 ? (digits - 2) * 1.5 : 0;
-                const fontSize = FONT_SIZE - diff;
-                this._ctx.font = `${fontSize}px serif`;
-                this._ctx.fillStyle = `${RECT_COLOR}`;
-                this._ctx.fillRect(x, y, RECT_SIZE, RECT_SIZE);
-                this._ctx.strokeText(`${value}`, !diff ? x + FONT_SIZE * .5 : x, y + FONT_SIZE * 1.25);
-                if (prevX && prevY && depth > 2) {
-                    this.drawPath(prevX, prevY + RECT_SIZE, x, y);
-                }
+    print(value: T | null = null,
+          x: number = X_START,
+          y: number = Y_START,
+          prevX: number = 0, prevY: number = 0, depth: number = 1): void {
+        if (this._zoom) {
+            if (x === X_START && y === Y_START) {
+                this.draw(value,
+                    this._zoom.getXstartScaled(),
+                    this._zoom.getYstartScaled(),
+                    prevX, prevY, depth);
+            } else {
+                this.draw(value, x, y, prevX, prevY, depth);
             }
+        }
+        console.log(`depth=${depth}, value=${value}, x=${x}, y=${y}, prevX=${prevX}, prevY=${prevY}, X_START=[${this._zoom?.X_START_SCALED},${X_START}], Y_START=${this._zoom?.Y_START_SCALED},${Y_START}`);
+    }
 
+    draw(value: T | null, x: number, y: number, prevX: number, prevY: number, depth: number, scale: number = 1): void {
+        if (this._ctx) {
+            const digits = `${value}`.length;
+            const diff = digits > 2 ? (digits - 2) * 1.5 : 0;
+            const fontSize = (FONT_SIZE - diff) * scale;
+            this._ctx.font = `${this._zoom ? this._zoom.ify(fontSize) : fontSize}px serif`;
+            this._ctx.fillStyle = `${RECT_COLOR}`;
+            this._ctx.fillRect(
+                this._zoom ? this._zoom.Xify(x) : x,
+                this._zoom ? this._zoom.Yify(y) : y,
+                this._zoom ? this._zoom.ify(RECT_SIZE) : RECT_SIZE,
+                this._zoom ? this._zoom.ify(RECT_SIZE) : RECT_SIZE);
+            const textX = !diff ? x + FONT_SIZE * .5 : x;
+            const textY = y + FONT_SIZE * 1.25;
+            this._ctx.strokeText(`${value}`,
+                this._zoom ? this._zoom.Xify(textX) : textX,
+                this._zoom ? this._zoom.Yify(textY) : textY);
+
+            if (prevX && prevY && depth > 2) {
+                this.drawPath(
+                    this._zoom ? this._zoom.Xify(prevX) : prevX,
+                    this._zoom ? this._zoom.Yify(prevY + RECT_SIZE) : prevY + RECT_SIZE,
+                    this._zoom ? this._zoom.Xify(x) : x,
+                    this._zoom ? this._zoom.Yify(y) : y,
+                );
+            }
         }
     }
 
