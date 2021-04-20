@@ -40,8 +40,8 @@ export default class BinarySearchTreePrinter<T> {
     }
 
     private printPreOrder(node: TreeNode<T> | null,
-                          x: number = X_START,
-                          y: number = Y_START,
+                          x: number = this._adapter.getZoom()?.X_START_SCALED ?? X_START,
+                          y: number = this._adapter.getZoom()?.Y_START_SCALED ?? Y_START,
                           prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
             this._adapter.print(node._value, x, y, prevX, prevY, depth);
@@ -61,7 +61,10 @@ export default class BinarySearchTreePrinter<T> {
         }
     }
 
-    private printPostOrder(node: TreeNode<T> | null, x: number = X_START, y: number = Y_START, prevX: number = 0, prevY: number = 0, depth: number = 1): void {
+    private printPostOrder(node: TreeNode<T> | null,
+                           x: number = this._adapter.getZoom()?.X_START_SCALED ?? X_START,
+                           y: number = this._adapter.getZoom()?.Y_START_SCALED ?? Y_START,
+                           prevX: number = 0, prevY: number = 0, depth: number = 1): void {
         if (node) {
             this.printPostOrder(node._left, x - STEP * depth, y + STEP * depth, x, y, depth + 1);
             this.printPostOrder(node._right, x + STEP * depth, y + STEP * depth, x, y, depth + 1);
